@@ -12,25 +12,34 @@ app.use(express.json());
 
 // mongodb code
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { application } = require('express');
 const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.2kuxk.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run() {
     try {
         await client.connect();
-        const todoCollection = client.db('todo').collection('totoList')
-
-        app.post('/todo', async (req, res) => {
+        const todoCollecttion = client.db("todo").collection('todoList');
+        console.log('db connected');
+        app.post('/todos', async (req, res) => {
             const todo = req.body;
-            const result = await todoCollection.insertOne(todo)
+            const result = await todoCollecttion.insertOne(todo)
+            res.send(result)
+        })
+        app.get('/todos', async (req, res) => {
+            const q = {};
+            const todos = await todoCollecttion.find(q).toArray();
+            res.send(todos)
+        })
+        app.delete('/todos/:id', async (req, res) => {
+            const id = req.params.id;
+            const cursor = { _id: ObjectId(id) }
+            const result = await todoCollecttion.deleteOne(cursor);
             res.send(result)
         })
 
-        app.get('/todo', async (req, res) => {
-            const q = {};
-            const todo = await todoCollection.find(q).toArray();
-            res.send(todo)
-        })
+
+
     }
     finally {
 
