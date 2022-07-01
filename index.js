@@ -37,6 +37,23 @@ async function run() {
             const result = await todoCollecttion.deleteOne(cursor);
             res.send(result)
         })
+        app.get('/todos/:email', async (req, res) => {
+            const email = req.params.email;
+            const q = { email: email }
+            const result = await todoCollecttion.find(q).toArray()
+            res.send(result);
+        })
+        app.put('/todos/:id', async (req, res) => {
+            const id = req.params.id;
+            const todo = req.body;
+            const q = { _id: ObjectId(id) };
+            const option = { upsert: true }
+            const updateDoc = {
+                $set: todo,
+            };
+            const result = await todoCollecttion.updateOne(q, updateDoc);
+            res.send(result)
+        })
 
 
 
